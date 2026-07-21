@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Newslens — AI news analysis",
+  title: "AI News Analysis",
   description: "Search recent news, generate an AI summary + sentiment, and browse past analyses.",
 };
 
