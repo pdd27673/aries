@@ -138,7 +138,6 @@ export default function HomePage() {
 
       {!searching && !searched && (
         <div className="empty">
-          <div className="empty-icon">🔎</div>
           <h3>Start with a search</h3>
           <p>
             Try <em>“artificial intelligence”</em>, <em>“climate”</em>, or anything current. Press <span className="kbd">/</span> to jump to
@@ -149,7 +148,6 @@ export default function HomePage() {
 
       {searched && !searching && !searchError && results.length === 0 && (
         <div className="empty">
-          <div className="empty-icon">📭</div>
           <h3>No articles found</h3>
           <p>Try a broader query or a different source.</p>
         </div>
@@ -185,7 +183,7 @@ export default function HomePage() {
                   disabled={state.status === "loading"}
                 >
                   {state.status === "loading" ? <span className="spinner" aria-hidden /> : null}
-                  {state.status === "loading" ? "Analyzing…" : state.status === "done" ? "Re-analyze" : "✨ Analyze"}
+                  {state.status === "loading" ? "Analyzing…" : state.status === "done" ? "Re-analyze" : "Analyze"}
                 </button>
 
                 {state.status === "error" && <p className="error">{state.error}</p>}

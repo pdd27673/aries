@@ -118,7 +118,6 @@ export default function HistoryPage() {
 
       {!loading && !error && items.length === 0 && (
         <div className="empty">
-          <div className="empty-icon">🗂️</div>
           <h3>Nothing here yet</h3>
           <p>Analyze an article from the Search tab and it&apos;ll show up here.</p>
         </div>

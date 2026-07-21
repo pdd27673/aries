@@ -12,9 +12,6 @@ export function Header() {
   return (
     <header className="header">
       <Link href="/" className="brand">
-        <span className="brand-mark" aria-hidden>
-          ◈
-        </span>
         Newslens <span className="brand-sub">· AI news analysis</span>
       </Link>
 

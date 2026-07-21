@@ -10,7 +10,7 @@ export function AnalysisCard({ result }: { result: AnalysisResult }) {
         <SentimentBadge sentiment={result.sentiment} />
         {result.cached && (
           <span className="muted small" title="Returned from the database — no OpenAI call was made">
-            ⚡ cached — no OpenAI call
+            cached — no OpenAI call
           </span>
         )}
       </div>

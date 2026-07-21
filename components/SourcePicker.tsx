@@ -7,8 +7,9 @@ interface SourceInfo {
   displayName: string;
 }
 
-// Dropdown of enabled sources. Loads them from /api/sources and reports the
-// selected id upward. Hidden until sources load; auto-selects the first one.
+// Inline dropdown of enabled sources, sized to sit level with the search input.
+// Loads them from /api/sources and reports the selected id upward. Hidden until
+// sources load; auto-selects the first one.
 export function SourcePicker({
   value,
   onChange,
@@ -34,15 +35,12 @@ export function SourcePicker({
   if (sources.length === 0) return null;
 
   return (
-    <label className="source-picker">
-      <span className="muted small">Source</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)}>
-        {sources.map((s) => (
-          <option key={s.id} value={s.id}>
-            {s.displayName}
-          </option>
-        ))}
-      </select>
-    </label>
+    <select className="source-select" value={value} onChange={(e) => onChange(e.target.value)} aria-label="News source">
+      {sources.map((s) => (
+        <option key={s.id} value={s.id}>
+          {s.displayName}
+        </option>
+      ))}
+    </select>
   );
 }
