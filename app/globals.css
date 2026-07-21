@@ -1,53 +1,55 @@
 :root {
-  /* Dark theme (default) */
-  --bg: #0a0b0f;
-  --bg-grad: radial-gradient(1200px 600px at 50% -10%, rgba(99, 102, 241, 0.12), transparent 60%);
-  --panel: #14161d;
-  --panel-2: #1a1d26;
-  --panel-hover: #1c1f29;
-  --border: #262a35;
-  --border-strong: #333846;
-  --text: #e8eaf0;
-  --muted: #9aa2b2;
-  --faint: #6b7280;
-  --accent: #6366f1;
-  --accent-2: #818cf8;
-  --accent-soft: rgba(99, 102, 241, 0.15);
-  --pos: #34d399;
-  --pos-soft: rgba(52, 211, 153, 0.14);
-  --neu: #fbbf24;
-  --neu-soft: rgba(251, 191, 36, 0.14);
-  --neg: #f87171;
-  --neg-soft: rgba(248, 113, 113, 0.14);
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+  /* Dark theme (default) — warm earth tones */
+  --bg: #1a1611;
+  --bg-grad: radial-gradient(1100px 560px at 50% -10%, rgba(187, 113, 37, 0.12), transparent 62%);
+  --panel: #241e17;
+  --panel-2: #2c251b;
+  --panel-hover: #2a2318;
+  --border: #3a3126;
+  --border-strong: #4c4131;
+  --text: #f1eadc;
+  --muted: #b1a58e;
+  --faint: #7e7460;
+  --accent: #bb7125; /* Raw Sienna */
+  --accent-hover: #cf8535;
+  --accent-text: #e0a45e; /* lighter sienna for links on dark */
+  --accent-soft: rgba(187, 113, 37, 0.16);
+  --highlight: #ffefae; /* Pale Lemon Yellow */
+  --pos: #6cc08a;
+  --pos-soft: rgba(108, 192, 138, 0.14);
+  --neu: #e0b24e;
+  --neu-soft: rgba(224, 178, 78, 0.14);
+  --neg: #e07a5f;
+  --neg-soft: rgba(224, 122, 95, 0.14);
+  --shadow: 0 4px 22px rgba(0, 0, 0, 0.34);
   --radius: 12px;
   --radius-sm: 8px;
   --radius-pill: 999px;
 }
 
 :root[data-theme="light"] {
-  --bg: #f7f8fb;
-  --bg-grad: radial-gradient(1200px 600px at 50% -10%, rgba(99, 102, 241, 0.1), transparent 60%);
+  --bg: #fdf8ec;
+  --bg-grad: radial-gradient(1100px 560px at 50% -10%, rgba(255, 239, 174, 0.55), transparent 60%);
   --panel: #ffffff;
-  --panel-2: #f2f4f9;
-  --panel-hover: #fbfcfe;
-  --border: #e3e7ef;
-  --border-strong: #cfd5e2;
-  --text: #14161d;
-  --muted: #5b6472;
-  --faint: #8b94a3;
-  --accent: #4f46e5;
-  --accent-2: #6366f1;
-  --accent-soft: rgba(79, 70, 229, 0.1);
-  --pos: #059669;
-  --pos-soft: rgba(5, 150, 105, 0.12);
-  --neu: #b45309;
-  --neu-soft: rgba(180, 83, 9, 0.12);
-  --neg: #dc2626;
-  --neg-soft: rgba(220, 38, 38, 0.1);
-  --shadow: 0 4px 20px rgba(30, 41, 59, 0.08);
-  --shadow-lg: 0 12px 40px rgba(30, 41, 59, 0.12);
+  --panel-2: #f8f1dc;
+  --panel-hover: #fdfaf1;
+  --border: #eaddc0;
+  --border-strong: #d8c69f;
+  --text: #2a2016;
+  --muted: #6e6250;
+  --faint: #9a8d75;
+  --accent: #bb7125;
+  --accent-hover: #a25f1b;
+  --accent-text: #9a5a1c;
+  --accent-soft: rgba(187, 113, 37, 0.12);
+  --highlight: #ffefae;
+  --pos: #3f8f5b;
+  --pos-soft: rgba(63, 143, 91, 0.12);
+  --neu: #b07d1e;
+  --neu-soft: rgba(255, 239, 174, 0.7);
+  --neg: #c0492e;
+  --neg-soft: rgba(192, 73, 46, 0.1);
+  --shadow: 0 4px 22px rgba(80, 55, 20, 0.1);
 }
 
 * {
@@ -72,7 +74,7 @@ body {
 }
 
 a {
-  color: var(--accent-2);
+  color: var(--accent-text);
 }
 
 ::selection {
@@ -86,46 +88,34 @@ a {
   z-index: 20;
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 14px 24px;
-  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  gap: 22px;
+  padding: 15px 24px;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
 
 .brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 9px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   color: var(--text);
   text-decoration: none;
-  font-size: 1.05rem;
-}
-
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  color: white;
-  font-size: 0.95rem;
-  box-shadow: 0 2px 10px var(--accent-soft);
+  font-size: 1.1rem;
 }
 
 .brand-sub {
   color: var(--faint);
   font-weight: 500;
+  font-size: 0.9rem;
 }
 
 .nav {
   display: flex;
   gap: 4px;
   align-items: center;
-  margin-left: 8px;
 }
 
 .nav a {
@@ -144,7 +134,7 @@ a {
 }
 
 .nav a.active {
-  color: var(--accent-2);
+  color: var(--accent-text);
   background: var(--accent-soft);
 }
 
@@ -162,13 +152,12 @@ a {
   border: 1px solid var(--border);
   color: var(--muted);
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s, transform 0.15s;
+  transition: color 0.15s, border-color 0.15s;
 }
 
 .theme-toggle:hover {
   color: var(--text);
   border-color: var(--border-strong);
-  transform: translateY(-1px);
 }
 
 /* --- Layout --- */
@@ -199,8 +188,21 @@ h1 {
 .searchbar {
   display: flex;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   align-items: stretch;
+}
+
+.source-select {
+  flex: 0 0 auto;
+  min-width: 140px;
+  padding: 0 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .search-input-wrap {
@@ -233,7 +235,9 @@ h1 {
   color: var(--faint);
 }
 
-.searchbar input:focus {
+.searchbar input:focus,
+.source-select:focus,
+select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
@@ -258,8 +262,7 @@ h1 {
   right: 12px;
 }
 
-/* --- Source picker + history controls --- */
-.source-picker,
+/* --- History controls --- */
 .controls label {
   display: flex;
   flex-direction: column;
@@ -273,7 +276,7 @@ h1 {
   flex-wrap: wrap;
 }
 
-select {
+.controls select {
   padding: 11px 12px;
   background: var(--panel);
   border: 1px solid var(--border);
@@ -284,41 +287,29 @@ select {
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
 /* --- Buttons --- */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 18px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  padding: 12px 20px;
+  background: var(--accent);
   border: none;
   border-radius: var(--radius);
-  color: white;
+  color: #fff;
   font-weight: 650;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: transform 0.12s, box-shadow 0.15s, opacity 0.15s;
-  box-shadow: 0 2px 12px var(--accent-soft);
+  transition: background 0.15s, opacity 0.15s;
 }
 
 .btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px var(--accent-soft);
-}
-
-.btn:active:not(:disabled) {
-  transform: translateY(0);
+  background: var(--accent-hover);
 }
 
 .btn:disabled {
-  opacity: 0.65;
+  opacity: 0.6;
   cursor: default;
 }
 
@@ -331,13 +322,11 @@ select:focus {
   background: var(--panel);
   border: 1px solid var(--border);
   color: var(--text);
-  box-shadow: none;
 }
 
 .btn-ghost:hover:not(:disabled) {
   border-color: var(--border-strong);
   background: var(--panel-hover);
-  box-shadow: none;
 }
 
 /* --- Spinner --- */
@@ -371,20 +360,19 @@ select:focus {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 18px;
-  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
-  animation: rise 0.35s ease both;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  animation: rise 0.32s ease both;
 }
 
 .result:hover {
   border-color: var(--border-strong);
-  transform: translateY(-2px);
   box-shadow: var(--shadow);
 }
 
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(7px);
   }
   to {
     opacity: 1;
@@ -409,7 +397,7 @@ select:focus {
 }
 
 .result-title:hover {
-  color: var(--accent-2);
+  color: var(--accent-text);
 }
 
 .meta {
@@ -418,7 +406,7 @@ select:focus {
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .source-tag {
@@ -462,7 +450,7 @@ select:focus {
 .error {
   color: var(--neg);
   background: var(--neg-soft);
-  border: 1px solid color-mix(in srgb, var(--neg) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--neg) 32%, transparent);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
   margin: 12px 0;
@@ -476,7 +464,7 @@ select:focus {
   background: var(--panel-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  animation: rise 0.3s ease both;
+  animation: rise 0.28s ease both;
 }
 
 .analysis-head {
@@ -508,45 +496,26 @@ select:focus {
 .badge-positive {
   color: var(--pos);
   background: var(--pos-soft);
-  border-color: color-mix(in srgb, var(--pos) 30%, transparent);
+  border-color: color-mix(in srgb, var(--pos) 32%, transparent);
 }
 
 .badge-neutral {
   color: var(--neu);
   background: var(--neu-soft);
-  border-color: color-mix(in srgb, var(--neu) 30%, transparent);
+  border-color: color-mix(in srgb, var(--neu) 34%, transparent);
 }
 
 .badge-negative {
   color: var(--neg);
   background: var(--neg-soft);
-  border-color: color-mix(in srgb, var(--neg) 30%, transparent);
+  border-color: color-mix(in srgb, var(--neg) 32%, transparent);
 }
 
-/* --- Quota badge --- */
+/* --- Quota --- */
 .quota {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   color: var(--muted);
   font-size: 0.82rem;
   margin: 0 0 22px;
-}
-
-.quota-track {
-  width: 90px;
-  height: 6px;
-  border-radius: var(--radius-pill);
-  background: var(--panel-2);
-  overflow: hidden;
-  border: 1px solid var(--border);
-}
-
-.quota-fill {
-  height: 100%;
-  border-radius: var(--radius-pill);
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  transition: width 0.4s ease;
 }
 
 /* --- Sentiment breakdown (history) --- */
@@ -630,22 +599,17 @@ select:focus {
 /* --- Empty state --- */
 .empty {
   text-align: center;
-  padding: 56px 20px;
+  padding: 52px 20px;
   border: 1px dashed var(--border-strong);
   border-radius: var(--radius);
   color: var(--muted);
-}
-
-.empty .empty-icon {
-  font-size: 2rem;
-  margin-bottom: 10px;
-  opacity: 0.7;
 }
 
 .empty h3 {
   margin: 0 0 6px;
   color: var(--text);
   font-weight: 650;
+  font-size: 1.05rem;
 }
 
 .empty p {
@@ -658,7 +622,7 @@ select:focus {
   .searchbar {
     flex-wrap: wrap;
   }
-  .source-picker {
+  .source-select {
     flex: 1;
   }
   .search-input-wrap {
