@@ -46,8 +46,8 @@ Each case-study requirement and the file(s) that satisfy it.
 | Second source toggleable via `ENABLED_SOURCES` | `core/sources/registry.ts`, `.env.example` |
 | Source-picker in the UI | `components/SourcePicker.tsx`, `app/api/sources/route.ts`, `services/sources.service.ts` |
 | Cache so re-analyzing is free | `services/analyze.service.ts` (lookup by unique `url` on `analyses`) |
-| Retry-with-backoff around external calls | `core/util/retry.ts` (used in `gnews.ts`, `rss.ts`, `openai.ts`) |
-| Narrow error types (no swallow-alls) | `core/util/errors.ts` (`ConfigError`, `UpstreamError`, `httpStatusFor`) |
+| Retry-with-backoff around external calls | `core/util/retry.ts` (used in `gnews.ts`, `rss.ts`, `openai.ts`; only retries transient failures via `isRetryable`) |
+| Narrow error types (no swallow-alls) | `core/util/errors.ts` (`ConfigError`→500, `BadRequestError`→400, `UpstreamError`→502, `httpStatusFor`) |
 | "Quota remaining today" indicator | `core/db/quota.model.ts`, `services/quota.service.ts`, `app/api/quota/route.ts`, `components/QuotaBadge.tsx` |
 | Filter/sort History by sentiment + date | `services/analyses.service.ts`, `app/api/analyses/route.ts`, `app/history/page.tsx` |
 | Unit tests (per adapter + analyze service) | `__tests__/gnews.test.ts`, `__tests__/rss.test.ts`, `__tests__/analyze.service.test.ts` |

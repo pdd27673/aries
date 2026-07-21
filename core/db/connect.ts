@@ -18,6 +18,13 @@ export async function connectToDb(): Promise<typeof mongoose> {
     cached.promise = mongoose.connect(uri);
   }
 
-  cached.conn = await cached.promise;
+  try {
+    cached.conn = await cached.promise;
+  } catch (err) {
+    // Clear the failed promise so the next call retries instead of forever
+    // awaiting the same rejected connection after a transient DB blip.
+    cached.promise = null;
+    throw err;
+  }
   return cached.conn;
 }

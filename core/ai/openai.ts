@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { ConfigError, UpstreamError } from "@/core/util/errors";
+import { ConfigError, UpstreamError, isRetryable } from "@/core/util/errors";
 import { withRetry } from "@/core/util/retry";
 
 // Single source of truth for sentiment values, reused by the DB schema.
@@ -30,19 +30,27 @@ function getClient(): OpenAI {
 export async function analyzeArticle(title: string, description: string): Promise<AnalysisResult> {
   const model = process.env.OPENAI_MODEL ?? "gpt-4.1-nano";
 
-  const res = await withRetry(() =>
-    getClient()
-      .chat.completions.create({
-        model,
-        response_format: { type: "json_object" }, // force valid JSON we can parse
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: `Title: ${title}\n\nDescription: ${description}` },
-        ],
-      })
-      .catch((err) => {
-        throw new UpstreamError("openai", err instanceof Error ? err.message : "OpenAI request failed");
-      }),
+  // Resolve the client (may throw ConfigError) outside withRetry — a missing key
+  // is not transient, so it should fail immediately rather than back off 3 times.
+  const client = getClient();
+
+  const res = await withRetry(
+    () =>
+      client.chat.completions
+        .create({
+          model,
+          response_format: { type: "json_object" }, // force valid JSON we can parse
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: `Title: ${title}\n\nDescription: ${description}` },
+          ],
+        })
+        .catch((err) => {
+          // Preserve the upstream status so retry can tell transient (5xx) from 4xx.
+          const status = typeof (err as { status?: unknown })?.status === "number" ? (err as { status: number }).status : undefined;
+          throw new UpstreamError("openai", err instanceof Error ? err.message : "OpenAI request failed", status);
+        }),
+    { shouldRetry: isRetryable },
   );
 
   const raw = res.choices[0]?.message?.content ?? "{}";

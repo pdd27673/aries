@@ -1,5 +1,5 @@
 import { recordCall } from "@/core/db/quota.model";
-import { ConfigError, UpstreamError } from "@/core/util/errors";
+import { ConfigError, UpstreamError, isRetryable } from "@/core/util/errors";
 import { withRetry } from "@/core/util/retry";
 import type { NewsSourceAdapter } from "./types";
 
@@ -36,12 +36,15 @@ export const gnewsAdapter: NewsSourceAdapter = {
     url.searchParams.set("lang", "en");
     url.searchParams.set("apikey", apiKey);
 
-    const data = await withRetry(async () => {
-      // no-store: news is time-sensitive; caching happens at the analyze layer.
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new UpstreamError("gnews", `GNews request failed: ${res.status}`);
-      return (await res.json()) as GNewsResponse;
-    });
+    const data = await withRetry(
+      async () => {
+        // no-store: news is time-sensitive; caching happens at the analyze layer.
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new UpstreamError("gnews", `GNews request failed: ${res.status}`, res.status);
+        return (await res.json()) as GNewsResponse;
+      },
+      { shouldRetry: isRetryable }, // don't retry a bad key / 429 quota — only transient 5xx/network
+    );
 
     // Record one call per successful search (retries are rare and not counted
     // separately). Best-effort: never fail a search because tracking failed.

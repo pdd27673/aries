@@ -1,5 +1,5 @@
 import { XMLParser } from "fast-xml-parser";
-import { UpstreamError } from "@/core/util/errors";
+import { UpstreamError, isRetryable } from "@/core/util/errors";
 import { withRetry } from "@/core/util/retry";
 import type { NewsSourceAdapter } from "./types";
 
@@ -7,14 +7,23 @@ import type { NewsSourceAdapter } from "./types";
 // at any other RSS feed — the rest of the adapter is feed-agnostic.
 const HN_FEED_URL = "https://hnrss.org/frontpage";
 
-const parser = new XMLParser();
+// parseTagValue:false keeps every field a string, so a purely-numeric title or
+// link (e.g. "2026") stays a string and can't break .toLowerCase()/the Article shape.
+const parser = new XMLParser({ parseTagValue: false });
+
+// A feed item's pubDate can be missing or unparseable; fall back to "now" as an
+// ISO string instead of letting `new Date(bad).toISOString()` throw and kill the search.
+const toIso = (pubDate?: string): string => {
+  const d = pubDate ? new Date(pubDate) : new Date();
+  return Number.isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+};
 
 // Only the item fields we use from a standard RSS feed.
 interface RssItem {
   title: string;
   link: string;
   description?: string;
-  pubDate: string;
+  pubDate?: string;
 }
 interface RssFeed {
   rss?: { channel?: { item?: RssItem | RssItem[] } };
@@ -29,11 +38,14 @@ export const rssAdapter: NewsSourceAdapter = {
   displayName: "Hacker News",
 
   async search(query, limit) {
-    const xml = await withRetry(async () => {
-      const res = await fetch(HN_FEED_URL, { cache: "no-store" });
-      if (!res.ok) throw new UpstreamError("hackernews", `Hacker News feed request failed: ${res.status}`);
-      return res.text();
-    });
+    const xml = await withRetry(
+      async () => {
+        const res = await fetch(HN_FEED_URL, { cache: "no-store" });
+        if (!res.ok) throw new UpstreamError("hackernews", `Hacker News feed request failed: ${res.status}`, res.status);
+        return res.text();
+      },
+      { shouldRetry: isRetryable },
+    );
 
     const feed = parser.parse(xml) as RssFeed;
     const raw = feed.rss?.channel?.item;
@@ -50,7 +62,7 @@ export const rssAdapter: NewsSourceAdapter = {
         url: it.link,
         description: stripHtml(it.description ?? ""),
         source: "hackernews",
-        publishedAt: new Date(it.pubDate).toISOString(),
+        publishedAt: toIso(it.pubDate),
       }));
   },
 };
