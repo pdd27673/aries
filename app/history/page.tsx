@@ -134,7 +134,7 @@ export default function HistoryPage() {
           items.map((item) => (
             <li key={item.url} className="result">
               <div className="result-head">
-                <a className="result-title" href={item.url} target="_blank" rel="noreferrer">
+                <a className="result-title" href={item.url} target="_blank" rel="noopener noreferrer">
                   {item.title}
                 </a>
                 <SentimentBadge sentiment={item.sentiment} />
