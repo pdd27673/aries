@@ -46,9 +46,21 @@ describe("gnewsAdapter.search", () => {
     expect(calledUrl).toContain("max=5");
   });
 
-  it("throws when the API responds with a non-OK status", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 429, json: async () => ({}) }));
-    // retries are fast here (default backoff) but still resolve to a thrown error.
+  it("throws without retrying on a 4xx (bad key / quota) — those won't fix themselves", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 429, json: async () => ({}) });
+    vi.stubGlobal("fetch", fetchMock);
+
     await expect(gnewsAdapter.search("x", 5)).rejects.toThrow(/GNews request failed/);
+    // 4xx is non-transient: exactly one attempt, no backoff retries.
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it("retries a transient 5xx before giving up", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 503, json: async () => ({}) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(gnewsAdapter.search("x", 5)).rejects.toThrow(/GNews request failed/);
+    // default retries = 2, so 1 initial + 2 retries = 3 attempts.
+    expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 });

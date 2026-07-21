@@ -41,4 +41,23 @@ describe("rssAdapter.search", () => {
 
     expect(out).toHaveLength(1);
   });
+
+  it("does not crash on a missing/unparseable pubDate — falls back to a valid ISO date", async () => {
+    const feed = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel>
+  <item>
+    <title>No date here</title>
+    <link>https://example.com/nodate</link>
+    <description>Body</description>
+    <pubDate>not-a-real-date</pubDate>
+  </item>
+</channel></rss>`;
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, text: async () => feed }));
+
+    const out = await rssAdapter.search("date", 10);
+
+    expect(out).toHaveLength(1);
+    // publishedAt is still a valid ISO string rather than throwing "Invalid time value".
+    expect(Number.isNaN(new Date(out[0].publishedAt).getTime())).toBe(false);
+  });
 });

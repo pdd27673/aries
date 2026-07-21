@@ -1,5 +1,6 @@
 import { getSource, sources } from "@/core/sources/registry";
 import type { Article } from "@/core/sources/types";
+import { BadRequestError } from "@/core/util/errors";
 
 const DEFAULT_LIMIT = 10;
 
@@ -9,7 +10,8 @@ const DEFAULT_LIMIT = 10;
 export async function searchArticles(query: string, sourceId?: string): Promise<Article[]> {
   const source = sourceId ? getSource(sourceId) : sources[0];
   if (!source) {
-    throw new Error(`Unknown or disabled source: ${sourceId ?? "(none enabled)"}`);
+    // An unknown/disabled source id is a client mistake (400), not a server fault (500).
+    throw new BadRequestError(`Unknown or disabled source: ${sourceId ?? "(none enabled)"}`);
   }
   return source.search(query, DEFAULT_LIMIT);
 }
