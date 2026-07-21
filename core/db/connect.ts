@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { withRetry } from "@/core/util/retry";
 
 // Next.js hot-reloads modules in dev, which would open a new Mongo connection
 // on every request. We cache the connection promise on the global object so a
@@ -15,7 +16,14 @@ export async function connectToDb(): Promise<typeof mongoose> {
   if (!cached.promise) {
     const uri = process.env.MONGODB_URI;
     if (!uri) throw new Error("MONGODB_URI is not set");
-    cached.promise = mongoose.connect(uri);
+    // Retry the initial handshake: some networks (corporate wifi, flaky links)
+    // intermittently drop the first TLS connection to Atlas with an SSL alert.
+    // A short backoff turns that transient cold-start failure into a success,
+    // and serverSelectionTimeoutMS bounds how long a truly-down server hangs.
+    cached.promise = withRetry(() => mongoose.connect(uri, { serverSelectionTimeoutMS: 8000 }), {
+      retries: 3,
+      baseDelayMs: 300,
+    });
   }
 
   try {
