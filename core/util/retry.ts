@@ -6,10 +6,16 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // (e.g. a bad API key or 4xx) so we fail fast instead of backing off pointlessly.
 export async function withRetry<T>(
   fn: () => Promise<T>,
-  opts: { retries?: number; baseDelayMs?: number; shouldRetry?: (err: unknown) => boolean } = {},
+  opts: {
+    retries?: number;
+    baseDelayMs?: number;
+    maxDelayMs?: number;
+    shouldRetry?: (err: unknown) => boolean;
+  } = {},
 ): Promise<T> {
   const retries = opts.retries ?? 2;
   const baseDelayMs = opts.baseDelayMs ?? 300;
+  const maxDelayMs = opts.maxDelayMs ?? Infinity;
   const shouldRetry = opts.shouldRetry ?? (() => true);
 
   let lastError: unknown;
@@ -19,8 +25,9 @@ export async function withRetry<T>(
     } catch (err) {
       lastError = err;
       if (attempt === retries || !shouldRetry(err)) break;
-      // exponential backoff: 300ms, 600ms, 1200ms, ...
-      await sleep(baseDelayMs * 2 ** attempt);
+      // exponential backoff (300ms, 600ms, 1200ms, …), capped at maxDelayMs so a
+      // long retry budget doesn't blow up into multi-second waits per attempt.
+      await sleep(Math.min(maxDelayMs, baseDelayMs * 2 ** attempt));
     }
   }
   throw lastError;
