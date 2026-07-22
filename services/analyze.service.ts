@@ -43,7 +43,7 @@ export async function analyze(input: AnalyzeInput): Promise<AnalyzeOutput> {
       source: input.source,
       analyzedAt: new Date(),
     },
-    { upsert: true, new: true, setDefaultsOnInsert: true },
+    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
   ).lean<AnalysisDoc | null>();
 
   if (!saved) throw new Error("Failed to save analysis");
