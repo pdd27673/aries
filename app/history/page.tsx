@@ -25,6 +25,8 @@ export default function HistoryPage() {
   // so the query params map straight to the /api/analyses contract.
   useEffect(() => {
     let active = true;
+    // Reset the loading/error state for each refetch (intentional in-effect sync).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);
 

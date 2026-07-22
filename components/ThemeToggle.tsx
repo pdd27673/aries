@@ -10,7 +10,10 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
+    // Sync from the DOM attribute the inline layout script already applied. Must
+    // happen post-mount (not in render) to avoid a hydration mismatch on the icon.
     const current = (document.documentElement.getAttribute("data-theme") as Theme) || "dark";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTheme(current);
   }, []);
 
