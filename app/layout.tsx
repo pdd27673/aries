@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Header } from "@/components/Header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "News Analysis",
+  title: "AI News Analysis",
   description: "Search recent news, generate an AI summary + sentiment, and browse past analyses.",
 };
 
+// Applied before paint so the saved theme doesn't flash the wrong colors on load.
+const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body>
-        <nav className="nav">
-          <Link href="/">Search</Link>
-          <Link href="/history">History</Link>
-        </nav>
+        <Header />
         {children}
       </body>
     </html>

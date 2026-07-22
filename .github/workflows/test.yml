@@ -18,3 +18,21 @@ jobs:
       - run: npx tsc --noEmit
       - run: npm run test
       - run: npm run build
+
+  # Deploys to Railway only after `build` succeeds, and only for pushes to main.
+  # Dormant until you opt in by setting the repo variable RAILWAY_DEPLOY=true and
+  # the secret RAILWAY_TOKEN (a Railway project token). See DEPLOYMENT.md.
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.RAILWAY_DEPLOY == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: railway-deploy
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v5
+      - run: npm i -g @railway/cli
+      - name: Deploy
+        run: railway up --service "${{ vars.RAILWAY_SERVICE }}" --ci
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

@@ -9,7 +9,7 @@ interface QuotaStatus {
 }
 
 // Small "GNews quota remaining today" indicator. Re-fetched via `refreshKey` so
-// it can update after a search spends a call. Silent if quota can't be loaded.
+// it updates after a search spends a call. Silent if it can't load.
 export function QuotaBadge({ refreshKey }: { refreshKey: number }) {
   const [quota, setQuota] = useState<QuotaStatus | null>(null);
 
@@ -28,7 +28,7 @@ export function QuotaBadge({ refreshKey }: { refreshKey: number }) {
 
   if (!quota) return null;
   return (
-    <p className="muted small">
+    <p className="quota">
       GNews quota: {quota.remaining}/{quota.limit} left today
     </p>
   );
