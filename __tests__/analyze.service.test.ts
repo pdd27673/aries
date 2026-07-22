@@ -41,6 +41,16 @@ describe("analyze service", () => {
     expect(out.cached).toBe(false);
   });
 
+  it("propagates the OpenAI error and does NOT save when analysis fails", async () => {
+    vi.mocked(Analysis.findOne).mockReturnValue(leanReturning(null) as never);
+    vi.mocked(analyzeArticle).mockRejectedValue(new Error("OpenAI is down"));
+
+    await expect(analyze(input)).rejects.toThrow("OpenAI is down");
+
+    // A failed analysis must not persist a half-formed row.
+    expect(Analysis.findOneAndUpdate).not.toHaveBeenCalled();
+  });
+
   it("returns the cached analysis and does NOT call OpenAI when the URL exists", async () => {
     vi.mocked(Analysis.findOne).mockReturnValue(
       leanReturning({
