@@ -11,7 +11,7 @@ import { analyze } from "@/services/analyze.service";
 import { analyzeArticle } from "@/core/ai/openai";
 import { Analysis } from "@/core/db/analysis.model";
 
-const input = { url: "https://example.com/a", title: "Title", description: "Desc", source: "gnews" };
+const input = { session: "sess-1", url: "https://example.com/a", title: "Title", description: "Desc", source: "gnews" };
 
 // Mongoose calls end in .lean(); return an object with a lean() that resolves to `value`.
 const leanReturning = (value: unknown) => ({ lean: () => Promise.resolve(value) });
@@ -33,6 +33,8 @@ describe("analyze service", () => {
 
     const out = await analyze(input);
 
+    // Cache lookup is scoped to the caller's session, not the URL alone.
+    expect(Analysis.findOne).toHaveBeenCalledWith({ session: "sess-1", url: input.url });
     expect(analyzeArticle).toHaveBeenCalledOnce();
     expect(out.summary).toBe("A summary");
     expect(out.sentiment).toBe("positive");

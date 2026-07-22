@@ -7,12 +7,13 @@ export interface ListOptions {
   sort?: "newest" | "oldest"; // by analyzedAt; defaults to newest
 }
 
-// Lists stored analyses with optional sentiment filter and date sort.
-// The { sentiment, analyzedAt } compound index backs the common filtered+sorted query.
-export async function listAnalyses(opts: ListOptions = {}): Promise<AnalysisDoc[]> {
+// Lists a session's stored analyses with optional sentiment filter and date sort.
+// The { session, sentiment, analyzedAt } compound index backs the filtered+sorted query.
+export async function listAnalyses(session: string, opts: ListOptions = {}): Promise<AnalysisDoc[]> {
   await connectToDb();
 
-  const filter = opts.sentiment ? { sentiment: opts.sentiment } : {};
+  const filter: Record<string, unknown> = { session };
+  if (opts.sentiment) filter.sentiment = opts.sentiment;
   const direction = opts.sort === "oldest" ? 1 : -1;
 
   return Analysis.find(filter).sort({ analyzedAt: direction }).lean<AnalysisDoc[]>();

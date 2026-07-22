@@ -38,7 +38,7 @@ npm run dev                 # http://localhost:3000
 2. **Analyze** — you click *Analyze* on a result. `POST /api/analyze` checks whether we've
    already analyzed that URL; if not, it makes **one** OpenAI call that returns both the
    summary and the sentiment as JSON, then saves the result.
-3. **History** — `GET /api/analyses` lists everything you've analyzed, filterable by
+3. **History** — `GET /api/analyses` lists everything *your session* has analyzed, filterable by
    sentiment and sortable by date.
 
 ## Architecture
@@ -111,13 +111,16 @@ registry. See [`ADDING_A_SOURCE.md`](./ADDING_A_SOURCE.md).
 Analyses are stored as flat documents — no joins, shaped the way they're queried:
 
 ```
-{ url, title, summary, sentiment, source, analyzedAt }
+{ session, url, title, summary, sentiment, source, analyzedAt }
 ```
 
-`url` is unique: it's the article's identity **and** the cache key. Re-analyzing an article
-already in the DB returns the stored result instead of calling OpenAI again (saves cost and
-GNews quota). Indexes on `sentiment`, `analyzedAt`, and `{ sentiment, analyzedAt }` back the
-History view's filter + sort.
+`session` is an anonymous per-browser id (an httpOnly `sid` cookie set on first analyze).
+Every analysis is tagged with it and the History view filters by it, so each visitor sees
+only their own results — handy when several people share one deployment. `(session, url)`
+is unique: it's the article's identity **and** the per-session cache key, so re-analyzing an
+article you've already done returns the stored result instead of calling OpenAI again (saves
+cost and GNews quota). Compound indexes on `{ session, analyzedAt }` and
+`{ session, sentiment, analyzedAt }` back the History view's filter + sort.
 
 ---
 

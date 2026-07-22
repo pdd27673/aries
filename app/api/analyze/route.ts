@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { httpStatusFor } from "@/core/util/errors";
+import { getSessionId, SESSION_COOKIE, sessionCookieOptions } from "@/core/util/session";
 import { analyze } from "@/services/analyze.service";
 
 // POST /api/analyze
@@ -18,14 +19,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "url, title and source are required" }, { status: 400 });
   }
 
+  const { id: session, isNew } = getSessionId(request);
+
   try {
     const result = await analyze({
+      session,
       url,
       title,
       description: typeof description === "string" ? description : "",
       source,
     });
-    return NextResponse.json(result);
+    const res = NextResponse.json(result);
+    if (isNew) res.cookies.set(SESSION_COOKIE, session, sessionCookieOptions);
+    return res;
   } catch (err) {
     // ConfigError -> 500, UpstreamError (OpenAI) -> 502.
     const message = err instanceof Error ? err.message : "Analysis failed";

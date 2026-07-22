@@ -3,6 +3,7 @@ import { Analysis, type AnalysisDoc } from "@/core/db/analysis.model";
 import { connectToDb } from "@/core/db/connect";
 
 export interface AnalyzeInput {
+  session: string; // scopes the cache lookup + stored row to this visitor
   url: string;
   title: string;
   description: string;
@@ -22,18 +23,19 @@ export interface AnalyzeOutput extends AnalysisResult {
 export async function analyze(input: AnalyzeInput): Promise<AnalyzeOutput> {
   await connectToDb();
 
-  // Cache: if this URL was analyzed before, return it and skip the OpenAI call
-  // (saves cost and, for GNews-sourced articles, avoids burning quota on repeats).
-  const existing = await Analysis.findOne({ url: input.url }).lean<AnalysisDoc | null>();
+  // Cache: if this session already analyzed this URL, return it and skip the
+  // OpenAI call (saves cost and, for GNews articles, avoids burning quota).
+  const existing = await Analysis.findOne({ session: input.session, url: input.url }).lean<AnalysisDoc | null>();
   if (existing) return toOutput(existing, true);
 
   const result = await analyzeArticle(input.title, input.description);
 
-  // Upsert by url so two concurrent analyze calls for the same article can't
-  // create duplicate rows — the unique index would reject the second insert anyway.
+  // Upsert by (session, url) so two concurrent analyze calls for the same article
+  // can't create duplicate rows — the unique index would reject the second insert.
   const saved = await Analysis.findOneAndUpdate(
-    { url: input.url },
+    { session: input.session, url: input.url },
     {
+      session: input.session,
       url: input.url,
       title: input.title,
       summary: result.summary,
