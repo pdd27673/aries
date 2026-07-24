@@ -1,8 +1,8 @@
 # News Analysis
 
 Search recent news, generate an AI **summary** + **sentiment** (positive / neutral /
-negative) for an article with one click, store the result, and browse everything you've
-analyzed. Built with Next.js (App Router) + TypeScript + MongoDB (Mongoose) + OpenAI.
+negative) for an article in one click, store the result, and browse the full analysis
+history. Built with Next.js (App Router), TypeScript, MongoDB (Mongoose), and OpenAI.
 
 ---
 
@@ -33,13 +33,13 @@ npm run dev                 # http://localhost:3000
 
 ## How it works (the flow)
 
-1. **Search** — you type a query and pick a source. `GET /api/search` asks the selected
+1. **Search** — a query and selected source drive `GET /api/search`, which asks the chosen
    source adapter for matching articles.
-2. **Analyze** — you click *Analyze* on a result. `POST /api/analyze` checks whether we've
-   already analyzed that URL; if not, it makes **one** OpenAI call that returns both the
-   summary and the sentiment as JSON, then saves the result.
-3. **History** — `GET /api/analyses` lists everything *your session* has analyzed, filterable by
-   sentiment and sortable by date.
+2. **Analyze** — clicking *Analyze* on a result sends `POST /api/analyze`, which checks
+   whether that URL has already been analyzed; if not, it makes **one** OpenAI call that
+   returns both the summary and the sentiment as JSON, then stores the result.
+3. **History** — `GET /api/analyses` lists everything the current session has analyzed,
+   filterable by sentiment and sortable by date.
 
 ## Architecture
 
@@ -116,9 +116,9 @@ Analyses are stored as flat documents — no joins, shaped the way they're queri
 
 `session` is an anonymous per-browser id (an httpOnly `sid` cookie set on first analyze).
 Every analysis is tagged with it and the History view filters by it, so each visitor sees
-only their own results — handy when several people share one deployment. `(session, url)`
+only their own results, keeping sessions isolated when several people share one deployment. `(session, url)`
 is unique: it's the article's identity **and** the per-session cache key, so re-analyzing an
-article you've already done returns the stored result instead of calling OpenAI again (saves
+already-analyzed article returns the stored result instead of calling OpenAI again (saves
 cost and GNews quota). Compound indexes on `{ session, analyzedAt }` and
 `{ session, sentiment, analyzedAt }` back the History view's filter + sort.
 
@@ -127,13 +127,9 @@ cost and GNews quota). Compound indexes on `{ session, analyzedAt }` and
 ## Deploying
 
 This is a **Node service** (server-side API routes hitting MongoDB + OpenAI), not a static
-site — host it anywhere that runs `next start` (Railway, Render, Vercel). Set the same
-environment variables from the table above in the host's dashboard and deploy this branch.
+site — host it anywhere that runs `next start` (Railway, Render, Vercel). Set the
+environment variables from the table above in the host's dashboard and deploy.
 [`railway.json`](./railway.json) pins the start command and a `GET /api/sources` health
-check — it returns 200 without touching Mongo or OpenAI, so the container is marked healthy
-before the DB is even reachable.
-
-One gotcha worth calling out: MongoDB Atlas blocks unknown IPs, and most hosts use dynamic
-egress IPs — add `0.0.0.0/0` to the Atlas **Network Access** allowlist (or a static egress
-IP if your plan offers one). Calls that need a missing key return a clear error rather than
-crashing, so a half-configured deploy degrades gracefully instead of hard-failing.
+check that returns 200 without touching Mongo or OpenAI, so the container is reported healthy
+before the database is reachable. Missing configuration surfaces as a clear API error rather
+than a crash, so a partially configured deploy degrades gracefully.
