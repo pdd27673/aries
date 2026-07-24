@@ -8,8 +8,8 @@ analyzed. Built with Next.js (App Router) + TypeScript + MongoDB (Mongoose) + Op
 
 ## Setup
 
-**Requirements:** Node 20+, a MongoDB connection string, a [GNews](https://gnews.io) API
-key (free tier: 100 req/day), and an OpenAI API key.
+**Requirements:** Node 24+ (see [`.nvmrc`](./.nvmrc)), a MongoDB connection string, a
+[GNews](https://gnews.io) API key (free tier: 100 req/day), and an OpenAI API key.
 
 ```bash
 npm install
@@ -103,8 +103,8 @@ knows GNews from Hacker News. `core/sources/registry.ts` holds the list of known
 and filters it by the `ENABLED_SOURCES` env var. The rest of the app only ever reads from
 that registry.
 
-**Adding a source touches exactly two files** — a new adapter, and one line in the
-registry. See [`ADDING_A_SOURCE.md`](./ADDING_A_SOURCE.md).
+**Adding a source touches exactly two files** — a new adapter that implements the
+`NewsSourceAdapter` interface, and one line registering it in `core/sources/registry.ts`.
 
 ### Data model
 
@@ -126,9 +126,14 @@ cost and GNews quota). Compound indexes on `{ session, analyzedAt }` and
 
 ## Deploying
 
-Host anywhere that runs a Next.js app (Railway, Vercel, Render). Set the same environment
-variables from the table above in the host's dashboard, point it at this branch, and deploy.
-Calls that need a missing key return a clear error rather than crashing.
+This is a **Node service** (server-side API routes hitting MongoDB + OpenAI), not a static
+site — host it anywhere that runs `next start` (Railway, Render, Vercel). Set the same
+environment variables from the table above in the host's dashboard and deploy this branch.
+[`railway.json`](./railway.json) pins the start command and a `GET /api/sources` health
+check — it returns 200 without touching Mongo or OpenAI, so the container is marked healthy
+before the DB is even reachable.
 
-See [`REQUIREMENTS_MAPPING.md`](./REQUIREMENTS_MAPPING.md) for how each case-study
-requirement maps to specific files.
+One gotcha worth calling out: MongoDB Atlas blocks unknown IPs, and most hosts use dynamic
+egress IPs — add `0.0.0.0/0` to the Atlas **Network Access** allowlist (or a static egress
+IP if your plan offers one). Calls that need a missing key return a clear error rather than
+crashing, so a half-configured deploy degrades gracefully instead of hard-failing.

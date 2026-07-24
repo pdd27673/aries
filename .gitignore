@@ -22,6 +22,9 @@ next-env.d.ts
 # local editor/agent settings (machine-specific)
 .claude/settings.local.json
 
+# internal/meta docs — kept on disk, out of the reviewer-facing repo
+docs/
+
 # testing
 /coverage
 
